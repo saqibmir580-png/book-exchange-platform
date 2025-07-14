@@ -32,14 +32,20 @@ const ReceivedOrders = () => {
         { status, deliveryStatus },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      fetchOrders(); // Refresh the order list
+      fetchOrders();
     } catch {
       alert("❌ Failed to update status.");
     }
   };
 
-  const handleUserDetails = (user) => {
-    setSelectedUser(user);
+  const handleUserDetails = (user, order) => {
+    setSelectedUser({
+      ...user,
+      orderInfo: {
+        deliveryDetails: order.deliveryDetails,
+        bookTitle: order.bookId?.title,
+      },
+    });
     setShowModal(true);
   };
 
@@ -66,13 +72,8 @@ const ReceivedOrders = () => {
               {orders.map((order) => {
                 const user = order.fromUser;
                 return (
-                  <tr
-                    key={order._id}
-                    className="border-t hover:bg-indigo-50 transition"
-                  >
-                    <td className="px-4 py-2 font-medium text-gray-900">
-                      {order.bookId?.title || "Unknown"}
-                    </td>
+                  <tr key={order._id} className="border-t hover:bg-indigo-50">
+                    <td className="px-4 py-2 font-medium">{order.bookId?.title || "Unknown"}</td>
                     <td className="px-4 py-2">{user?.name || "N/A"}</td>
                     <td className="px-4 py-2 capitalize">
                       <span
@@ -105,29 +106,24 @@ const ReceivedOrders = () => {
                     <td className="px-4 py-2 space-x-2">
                       {order.status === "pending" && (
                         <button
-                          onClick={() =>
-                            updateStatus(order._id, "accepted", "in progress")
-                          }
+                          onClick={() => updateStatus(order._id, "accepted", "in progress")}
                           className="bg-blue-600 text-white px-3 py-1 rounded text-xs"
                         >
                           ✅ Accept
                         </button>
                       )}
 
-                      {order.status === "accepted" &&
-                        order.deliveryStatus !== "delivered" && (
-                          <button
-                            onClick={() =>
-                              updateStatus(order._id, "completed", "delivered")
-                            }
-                            className="bg-green-600 text-white px-3 py-1 rounded text-xs"
-                          >
-                            📦 Mark Delivered
-                          </button>
-                        )}
+                      {order.status === "accepted" && order.deliveryStatus !== "delivered" && (
+                        <button
+                          onClick={() => updateStatus(order._id, "completed", "delivered")}
+                          className="bg-green-600 text-white px-3 py-1 rounded text-xs"
+                        >
+                          📦 Mark Delivered
+                        </button>
+                      )}
 
                       <button
-                        onClick={() => handleUserDetails(user)}
+                        onClick={() => handleUserDetails(user, order)}
                         className="bg-gray-600 text-white px-3 py-1 rounded text-xs"
                       >
                         👁️ View User
@@ -138,10 +134,7 @@ const ReceivedOrders = () => {
               })}
               {orders.length === 0 && (
                 <tr>
-                  <td
-                    colSpan="5"
-                    className="text-center py-4 text-gray-500 italic"
-                  >
+                  <td colSpan="5" className="text-center py-4 text-gray-500 italic">
                     You haven’t received any book requests yet.
                   </td>
                 </tr>
@@ -150,7 +143,7 @@ const ReceivedOrders = () => {
           </table>
         </div>
 
-        {/* 🧍 Modal for User Details */}
+        {/* 🢍 Modal for User Details */}
         {showModal && selectedUser && (
           <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
             <div className="bg-white p-6 rounded shadow-lg max-w-md w-full relative">
@@ -161,33 +154,54 @@ const ReceivedOrders = () => {
                 ✖
               </button>
               <h3 className="text-xl font-bold text-indigo-600 mb-4">
-                📄 Requester Details
+                📄 Requester & Delivery Info
               </h3>
-              <div className="flex items-center space-x-4">
-                {selectedUser.avatar && (
-                  <img
-                    src={selectedUser.avatar}
-                    alt="avatar"
-                    className="w-16 h-16 rounded-full object-cover border"
-                  />
-                )}
-                <div>
-                  <p>
-                    <strong>Name:</strong> {selectedUser.name}
-                  </p>
-                  <p>
-                    <strong>Email:</strong> {selectedUser.email}
-                  </p>
-                  <p>
-                    <strong>Phone:</strong> {selectedUser.phone || "N/A"}
-                  </p>
-                  <p>
-                    <strong>Address:</strong> {selectedUser.address}
-                  </p>
-                  <p>
-                    <strong>Pin:</strong> {selectedUser.pinCode}
-                  </p>
+              <div className="space-y-2 text-sm">
+                <div className="flex items-center space-x-4 mb-3">
+                  {selectedUser.avatar && (
+                    <img
+                      src={selectedUser.avatar}
+                      alt="avatar"
+                      className="w-16 h-16 rounded-full object-cover border"
+                    />
+                  )}
+                  <div>
+                    <p><strong>Name:</strong> {selectedUser.name}</p>
+                    <p><strong>Email:</strong> {selectedUser.email}</p>
+                    <p><strong>Phone:</strong> {selectedUser.phone || "N/A"}</p>
+                  </div>
                 </div>
+
+                {selectedUser.orderInfo?.deliveryDetails && (
+                  <div className="bg-gray-50 p-3 rounded border text-xs">
+                    <p><strong>📦 Delivery Name:</strong> {selectedUser.orderInfo.deliveryDetails.fullName}</p>
+                    <p><strong>📍 Address:</strong> {selectedUser.orderInfo.deliveryDetails.address}</p>
+                    <p><strong>📬 Pin Code:</strong> {selectedUser.orderInfo.deliveryDetails.pinCode}</p>
+                    <p><strong>📞 Contact:</strong> {selectedUser.orderInfo.deliveryDetails.phone}</p>
+
+                    <a
+                      href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+                        selectedUser.orderInfo.deliveryDetails.address + ", " + selectedUser.orderInfo.deliveryDetails.pinCode
+                      )}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 underline mt-2 block"
+                    >
+                      📍 View on Google Maps
+                    </a>
+
+                    <a
+                      href={`https://wa.me/${selectedUser.orderInfo.deliveryDetails.phone}?text=${encodeURIComponent(
+                        `Hello ${selectedUser.orderInfo.deliveryDetails.fullName}, I'm delivering your book "${selectedUser.orderInfo.bookTitle}". Please confirm availability.`
+                      )}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-3 inline-block bg-green-500 hover:bg-green-600 text-white px-4 py-1 rounded text-sm"
+                    >
+                      💬 Message on WhatsApp
+                    </a>
+                  </div>
+                )}
               </div>
             </div>
           </div>

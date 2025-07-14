@@ -28,11 +28,11 @@ const userSchema = new mongoose.Schema({
       "https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y",
   },
   phone: {
-    type: String,
+    type:Number,
     default: "Not provided",
   },
 
-  role: { type: String, default: "user" },
+  role: { type: String, enum: ["user", "admin"], default: "user" },
 
   membershipLevel: { type: String, default: "Bronze" },
 });
