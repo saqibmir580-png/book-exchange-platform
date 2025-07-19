@@ -2,7 +2,7 @@ const Book = require("../models/Book");
 const fs = require('fs');
 const XLSX = require('xlsx');
 // Create new book with image
-exports.addBook = async (req, res) => {
+exports.AddBook = async (req, res) => {
   try {
     const { title, author } = req.body;
     const image = req.file ? req.file.path : "";

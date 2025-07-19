@@ -1,12 +1,12 @@
 const Book = require("../models/Book");
 const User = require("../models/User");
-const Order = require("../models/Order"); // ✅ Import Order model
+const Order = require("../models/Order"); 
 
 exports.getDashboardSummary = async (req, res) => {
   try {
     const totalBooks = await Book.countDocuments();
     const booksUploaded = await Book.countDocuments({ ownerId: req.user._id });
-    const booksOrdered = await Order.countDocuments({ fromUser: req.user._id }); // ✅ Correct order count
+    const booksOrdered = await Order.countDocuments({ fromUser: req.user._id }); 
 
     const chartData = [
       { name: "Jan", uploads: 2, orders: 1 },

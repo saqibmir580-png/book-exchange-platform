@@ -1,24 +1,27 @@
 const express = require("express");
 const router = express.Router();
-const bookController = require("../controllers/bookController");
+const {
+  AddBook,
+  AddBulkUpload,
+  getBooks,
+  getMyBooks,
+  updateBookStatus,
+  updateBook,
+  deleteBook,
+  getBookById,
+} = require("../controllers/bookController");
 
 const { protect } = require("../middlewares/auth");
 const { uploadImage, uploadExcel } = require("../utils/upload");
 
-router.post("/add", protect,uploadImage.single("image"),bookController.addBook);
-router.post(
-  "/bulk-upload",
-  protect,
-  uploadExcel.single("file"),
-  bookController.AddBulkUpload
-);
-router.get("/all", protect, bookController.getBooks);
-router.get("/my", protect, bookController.getMyBooks);
-router.put("/status", protect, bookController.updateBookStatus);
-router.put("/:bookId", protect, bookController.updateBook);
-router.delete("/:bookId", protect, bookController.deleteBook);
-router.get("/:bookId", protect, bookController.getBookById);
-
+router.post("/add", protect, uploadImage.single("image"), AddBook);
+router.post("/bulk-upload", protect, uploadExcel.single("file"), AddBulkUpload);
+router.get("/all", protect, getBooks);
+router.get("/my", protect, getMyBooks);
+router.put("/status", protect, updateBookStatus);
+router.put("/:bookId", protect, updateBook);
+router.delete("/:bookId", protect, deleteBook);
+router.get("/:bookId", protect, getBookById);
 
 module.exports = router;
 // This code defines the routes for book-related operations in a Node.js application using Express.

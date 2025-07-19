@@ -20,6 +20,7 @@ import ManageMemberships from "./pages/ManageMemberships.jsx";
 import ManageTestimonials from "./pages/ManageTestimonials.jsx";
 import ManageBlogs from "./pages/ManageBlogs.jsx";
 import CreateBlog from "./pages/CreateBlog.jsx";
+import NotFound from "./pages/NotFound.jsx";
 const App = () => {
   return (
     <div>
@@ -46,6 +47,7 @@ const App = () => {
            <Route path="/admin/testimonials" element={<ManageTestimonials />} />
            <Route path="/admin/blogs" element={<ManageBlogs />} />
 
+              <Route path="*" element={<NotFound />} />
 
         </Routes>
       </BrowserRouter>
