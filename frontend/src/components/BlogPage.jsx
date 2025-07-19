@@ -26,7 +26,7 @@ const blogPosts = [
     date: "July 5, 2025",
     excerpt:
       "Reduce waste and save trees — how book reuse helps the planet one read at a time.",
-    image: "https://images.unsplash.com/photo-1589998059171-317e7042e6d4", // green theme
+    image: "https://media.istockphoto.com/id/1389876555/photo/adult-students-studying-together-in-library.jpg?s=612x612&w=0&k=20&c=QBMntuBagQv0Ls4JynPfI2FqQIxNk4b7d37vTNzxf1I=", // green theme
   },
   {
     id: 4,

@@ -34,8 +34,8 @@ const Navbar = () => {
       <div className="max-w-7xl mx-auto px-6 py-3 flex justify-between items-center">
         {/* Logo */}
         <Link to="/" className="flex items-center text-3xl font-extrabold">
-          <img src="https://hpl.libnet.info/images/events/hpl/ICON_-_BOOK_SWAP.jpg" alt="Logo" className="h-10 w-10 mr-3" />
-          Book<span className="text-indigo-600 dark:text-yellow-300">Exchange</span>
+          <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ9cvH29n6nHI6ebOaFXP9dJ-iYEtOThPoQVA&s" alt="Logo" className="h-10 w-10 mr-3" />
+          Kutub<span className="text-indigo-600 dark:text-yellow-300">Net</span>
         </Link>
 
         {/* Desktop Nav */}

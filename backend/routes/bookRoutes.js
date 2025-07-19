@@ -5,7 +5,7 @@ const bookController = require("../controllers/bookController");
 const { protect } = require("../middlewares/auth");
 const { uploadImage, uploadExcel } = require("../utils/upload");
 
-router.post("/add", protect,uploadImage.single("image"), bookController.addBook);
+router.post("/add", protect,uploadImage.single("image"),bookController.addBook);
 router.post(
   "/bulk-upload",
   protect,
@@ -18,11 +18,7 @@ router.put("/status", protect, bookController.updateBookStatus);
 router.put("/:bookId", protect, bookController.updateBook);
 router.delete("/:bookId", protect, bookController.deleteBook);
 router.get("/:bookId", protect, bookController.getBookById);
-router.get("/search/query", protect, bookController.searchBooks);
-router.get("/filter/status", protect, bookController.getBooksByStatus);
-router.get("/filter/author", protect, bookController.getBooksByAuthor);
-router.get("/filter/title", protect, bookController.getBooksByTitle);
-router.get("/filter/owner", protect, bookController.getBooksByOwnerId);
+
 
 module.exports = router;
 // This code defines the routes for book-related operations in a Node.js application using Express.
