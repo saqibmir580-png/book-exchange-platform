@@ -1,25 +1,25 @@
 import React, { useEffect, useState } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
-import Dashboard from "./pages/DashBoard";
-import Profile from "./pages/Profile";
-import AddBook from "./pages/AddBook";
-import BookList from "./pages/BookList";
-import MyBooks from "./pages/MyBook";
-import MyOrders from "./pages/MyOrders";
-import ReceivedOrders from "./pages/ReceivedOrders";
-import Home from "./pages/Home";
-import CreateTestimonial from "./pages/CreateTestimonial";
-import DeliveryForm from "./pages/DeliveryForm";
-import ReturnedBooks from "./pages/ReturnedBooks";
-import ReceivedBooks from "./pages/ReceivedBooks";
-import AdminDashboard from "./components/AdminDashboard";
-import ManageUsers from "./pages/ManageUsers";
-import ManageMemberships from "./pages/ManageMemberships";
-import ManageTestimonials from "./pages/ManageTestimonials";
-import ManageBlogs from "./pages/ManageBlogs";
-import CreateBlog from "./pages/CreateBlog";
+import Login from "./pages/Login.jsx";
+import Register from "./pages/Register.jsx";
+import Dashboard from "./pages/DashBoard.jsx";
+import Profile from "./pages/Profile.jsx";
+import AddBook from "./pages/AddBook.jsx";
+import BookList from "./pages/BookList.jsx";
+import MyBooks from "./pages/MyBook.jsx";
+import MyOrders from "./pages/MyOrders.jsx";
+import ReceivedOrders from "./pages/ReceivedOrders.jsx";
+import Home from "./pages/Home.jsx";
+import CreateTestimonial from "./pages/CreateTestimonial.jsx";
+import DeliveryForm from "./pages/DeliveryForm.jsx";
+import ReturnedBooks from "./pages/ReturnedBooks.jsx";
+import ReceivedBooks from "./pages/ReceivedBooks.jsx";
+import AdminDashboard from "./components/AdminDashboard.jsx";
+import ManageUsers from "./pages/ManageUsers.jsx";
+import ManageMemberships from "./pages/ManageMemberships.jsx";
+import ManageTestimonials from "./pages/ManageTestimonials.jsx";
+import ManageBlogs from "./pages/ManageBlogs.jsx";
+import CreateBlog from "./pages/CreateBlog.jsx";
 const App = () => {
   return (
     <div>
