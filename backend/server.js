@@ -14,8 +14,11 @@ require("dotenv").config("");
 
 const app = express();
 connectDB();
-
-app.use(cors());
+const coreOptions = {
+  origin: "https://kutub-net.onrender.com/",
+  credentials: true, 
+  }
+app.use(cors(coreOptions));
 app.use(express.json());
 
 
