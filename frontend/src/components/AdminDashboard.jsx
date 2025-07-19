@@ -1,111 +1,135 @@
 import React, { useEffect, useState } from "react";
 import axios from "../api/axios";
 import DashboardLayout from "../components/DashboardLayout";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  CartesianGrid,
+  Legend,
+  PieChart,
+  Pie,
+  Cell,
+} from "recharts";
+
+const COLORS = ["#6366F1", "#10B981", "#F59E0B", "#EF4444"];
 
 const AdminDashboard = () => {
-  const [users, setUsers] = useState([]);
-  const [stats, setStats] = useState({});
+  const [stats, setStats] = useState({
+    totalUsers: 0,
+    totalBooks: 0,
+    borrowedBooks: 0,
+    returnedBooks: 0,
+    notReturnedBooks: 0,
+    memberships: {},
+  });
+
   const token = localStorage.getItem("token");
 
-  const fetchData = async () => {
-    try {
-      const [userRes, statsRes] = await Promise.all([
-        axios.get("/admin/users", {
-          headers: { Authorization: `Bearer ${token}` },
-        }),
-        axios.get("/admin/stats", {
-          headers: { Authorization: `Bearer ${token}` },
-        }),
-      ]);
-      setUsers(userRes.data);
-      setStats(statsRes.data);
-    } catch (err) {
-      console.error("Failed to fetch admin data");
-    }
-  };
-
   useEffect(() => {
-    fetchData();
-  }, []);
+    const fetchStats = async () => {
+      try {
+        const res = await axios.get("/admin/stats", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setStats(res.data);
+      } catch (err) {
+        console.error("❌ Failed to fetch stats", err);
+      }
+    };
+    fetchStats();
+  }, [token]);
 
-  const updateMembership = async (userId, newStatus) => {
-    try {
-      await axios.put(
-        `/admin/users/${userId}/membership`,
-        { membership: newStatus },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      fetchData();
-    } catch (err) {
-      console.error("Failed to update membership");
-    }
-  };
+  const membershipData = Object.entries(stats.memberships).map(
+    ([level, count], index) => ({
+      name: level,
+      value: count,
+      fill: COLORS[index % COLORS.length],
+    })
+  );
+
+  const activityData = [
+    { name: "Borrowed", count: stats.borrowedBooks },
+    { name: "Returned", count: stats.returnedBooks },
+    { name: "Not Returned", count: stats.notReturnedBooks },
+  ];
 
   return (
     <DashboardLayout>
       <div className="p-6">
-        <h2 className="text-2xl font-bold text-indigo-700 mb-6">🛠️ Admin Dashboard</h2>
+        <h2 className="text-3xl font-bold text-indigo-700 mb-6">
+          📊 Admin Dashboard
+        </h2>
 
-        {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <div className="bg-indigo-100 p-4 rounded shadow text-center">
-            <h4 className="text-lg font-bold text-indigo-800">Users</h4>
-            <p className="text-xl">{stats.totalUsers}</p>
-          </div>
-          <div className="bg-green-100 p-4 rounded shadow text-center">
-            <h4 className="text-lg font-bold text-green-800">Books</h4>
-            <p className="text-xl">{stats.totalBooks}</p>
-          </div>
-          <div className="bg-yellow-100 p-4 rounded shadow text-center">
-            <h4 className="text-lg font-bold text-yellow-800">Orders</h4>
-            <p className="text-xl">{stats.totalOrders}</p>
-          </div>
-          <div className="bg-pink-100 p-4 rounded shadow text-center">
-            <h4 className="text-lg font-bold text-pink-800">Testimonials</h4>
-            <p className="text-xl">{stats.totalTestimonials}</p>
-          </div>
+        {/* 📦 Stats Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
+          <StatCard label="Total Users" value={stats.totalUsers} color="indigo" />
+          <StatCard label="Total Books" value={stats.totalBooks} color="blue" />
+          <StatCard label="Books Borrowed" value={stats.borrowedBooks} color="yellow" />
+          <StatCard label="Books Returned" value={stats.returnedBooks} color="green" />
+          <StatCard label="Books Not Returned" value={stats.notReturnedBooks} color="red" />
         </div>
 
-        {/* Membership Management */}
-        <div>
-          <h3 className="text-xl font-bold mb-4 text-gray-800">👥 Manage Membership</h3>
-          <table className="min-w-full bg-white rounded shadow text-sm">
-            <thead className="bg-gray-100">
-              <tr>
-                <th className="text-left px-4 py-2">Name</th>
-                <th className="text-left px-4 py-2">Email</th>
-                <th className="text-left px-4 py-2">Membership</th>
-                <th className="text-left px-4 py-2">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {users.map((user) => (
-                <tr key={user._id} className="border-t hover:bg-gray-50">
-                  <td className="px-4 py-2">{user.name}</td>
-                  <td className="px-4 py-2">{user.email}</td>
-                  <td className="px-4 py-2 capitalize">{user.membership || "basic"}</td>
-                  <td className="px-4 py-2 space-x-2">
-                    <button
-                      onClick={() => updateMembership(user._id, "basic")}
-                      className="bg-gray-600 text-white text-xs px-3 py-1 rounded"
-                    >
-                      Basic
-                    </button>
-                    <button
-                      onClick={() => updateMembership(user._id, "premium")}
-                      className="bg-blue-600 text-white text-xs px-3 py-1 rounded"
-                    >
-                      Premium
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        {/* 📊 Charts */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* 🎯 Pie Chart */}
+          <div className="bg-white rounded shadow p-4">
+            <h3 className="text-lg font-semibold text-indigo-700 mb-2">
+              🧩 Membership Distribution
+            </h3>
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart>
+                <Pie
+                  data={membershipData}
+                  dataKey="value"
+                  nameKey="name"
+                  outerRadius={100}
+                  label
+                >
+                  {membershipData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.fill} />
+                  ))}
+                </Pie>
+                <Tooltip />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+
+          {/* 📦 Bar Chart */}
+          <div className="bg-white rounded shadow p-4">
+            <h3 className="text-lg font-semibold text-indigo-700 mb-2">
+              📦 Book Activity Overview
+            </h3>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={activityData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="name" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Bar dataKey="count">
+                  <Cell fill="#6366F1" /> {/* Borrowed */}
+                  <Cell fill="#10B981" /> {/* Returned */}
+                  <Cell fill="#EF4444" /> {/* Not Returned */}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
         </div>
       </div>
     </DashboardLayout>
   );
 };
+
+// 📦 Stat card component
+const StatCard = ({ label, value, color }) => (
+  <div className={`bg-${color}-100 p-4 rounded shadow text-center`}>
+    <div className={`text-${color}-700 text-xl font-bold`}>{value}</div>
+    <div className="text-gray-600 mt-1">{label}</div>
+  </div>
+);
 
 export default AdminDashboard;

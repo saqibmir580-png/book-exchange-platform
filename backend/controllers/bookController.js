@@ -1,5 +1,6 @@
 const Book = require("../models/Book");
-
+const fs = require('fs');
+const XLSX = require('xlsx');
 // Create new book with image
 exports.addBook = async (req, res) => {
   try {
@@ -18,8 +19,61 @@ exports.addBook = async (req, res) => {
     res.status(500).json({ message: "Failed to add book", error: error.message });
   }
 };
+// add bulk books
+exports.AddBulkUpload = async (req, res) => {
+console.log(req)
+  // 1. First check if file exists
+  if (!req.file) {
+    return res.status(400).json({ 
+      success: false,
+      message: 'No file was uploaded or file processing failed'
+    });
+  }
 
+  try {
+    // 2. Process the Excel file
+    const workbook = XLSX.readFile(req.file.path);
+    const sheet = workbook.Sheets[workbook.SheetNames[0]];
+    const rows = XLSX.utils.sheet_to_json(sheet);
+    
+    // 3. Map and validate data
+    const books = rows.map((r) => ({
+      title: r.Title || '', // Ensure required fields have defaults
+      author: r.Author || '',
+      ownerId: req.user._id,
+      status: r.Status || 'available',
+      image: r.Image || '',
+    }));
 
+    // 4. Insert into database
+    await Book.insertMany(books);
+    
+    // 5. Clean up - delete the temporary file
+    fs.unlinkSync(req.file.path);
+    
+    return res.json({ 
+      success: true,
+      inserted: books.length 
+    });
+    
+  } catch (err) {
+    // 6. Error handling with cleanup
+    if (req.file?.path) {
+      try {
+        fs.unlinkSync(req.file.path); // Clean up file if exists
+      } catch (cleanupErr) {
+        console.error('File cleanup failed:', cleanupErr);
+      }
+    }
+    
+    console.error('Bulk upload error:', err);
+    return res.status(500).json({ 
+      success: false,
+      message: 'Bulk upload failed',
+      error: process.env.NODE_ENV === 'development' ? err.message : undefined
+    });
+  }
+};
 // Get all books except user’s own
 exports.getBooks = async (req, res) => {
   const books = await  Book.find().populate("ownerId", "name _id");

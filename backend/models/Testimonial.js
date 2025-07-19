@@ -7,6 +7,7 @@ const testimonialSchema = new mongoose.Schema(
     role: { type: String },
     avatar: { type: String },
     message: { type: String, required: true },
+     showOnHome: { type: Boolean, default: false },
   },
   { timestamps: true }
 );

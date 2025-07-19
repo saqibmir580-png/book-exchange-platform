@@ -1,21 +1,55 @@
 const multer = require("multer");
 const { CloudinaryStorage } = require("multer-storage-cloudinary");
 const cloudinary = require("./cloudinary");
+const path = require("path");
+const fs = require("fs");
 
-const storage = new CloudinaryStorage({
+// Create tmp/uploads directory if it doesn't exist
+const tmpDir = path.join(process.cwd(), "tmp", "uploads");
+if (!fs.existsSync(tmpDir)) {
+  fs.mkdirSync(tmpDir, { recursive: true });
+}
+
+// 1. For Images (Cloudinary)
+const imageStorage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
     folder: "book-exchange/books",
     allowed_formats: ["jpg", "jpeg", "png"],
-    transformation: [{ width: 500, height: 700, crop: "limit" }],
-  },
+    transformation: [{ width: 500, height: 700, crop: "limit" }]
+  }
 });
 
-const upload = multer({ storage });
+// 2. For Excel Files (Temporary Local Storage)
+const excelStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, tmpDir);
+  },
+  filename: (req, file, cb) => {
+    cb(null, `bulk-${Date.now()}${path.extname(file.originalname)}`);
+  }
+});
 
-module.exports = upload;
-// This code sets up a file upload system using multer and Cloudinary.
-// It configures multer to use Cloudinary as the storage backend, allowing image uploads to be stored in a specific folder
-// with specified transformations (like resizing). The upload middleware can be used in routes to handle file uploads.
-// Usage: This module can be imported in your route files to handle file uploads.
-// Example: const upload = require('./utils/upload'); to use this upload middleware in your routes.
+// Middlewares
+const uploadImage = multer({ 
+  storage: imageStorage,
+  limits: {
+    fileSize: 5 * 1024 * 1024 // 5MB limit
+  }
+});
+
+const uploadExcel = multer({ 
+  storage: excelStorage,
+  fileFilter: (req, file, cb) => {
+    const ext = path.extname(file.originalname).toLowerCase();
+    if (!['.xlsx', '.xls', '.csv'].includes(ext)) {
+      return cb(new Error('Only Excel/CSV files are allowed'));
+    }
+    cb(null, true);
+  },
+  limits: {
+    fileSize: 10 * 1024 * 1024 // 10MB limit for Excel files
+  }
+});
+
+module.exports = { uploadImage, uploadExcel };

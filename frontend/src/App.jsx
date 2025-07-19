@@ -14,6 +14,12 @@ import CreateTestimonial from "./pages/CreateTestimonial";
 import DeliveryForm from "./pages/DeliveryForm";
 import ReturnedBooks from "./pages/ReturnedBooks";
 import ReceivedBooks from "./pages/ReceivedBooks";
+import AdminDashboard from "./components/AdminDashboard";
+import ManageUsers from "./pages/ManageUsers";
+import ManageMemberships from "./pages/ManageMemberships";
+import ManageTestimonials from "./pages/ManageTestimonials";
+import ManageBlogs from "./pages/ManageBlogs";
+import CreateBlog from "./pages/CreateBlog";
 const App = () => {
   return (
     <div>
@@ -32,7 +38,15 @@ const App = () => {
           <Route path="/testimonial/create" element={<CreateTestimonial />} />
           <Route path="/delivery" element={<DeliveryForm />} />
           <Route path="/returns" element={<ReturnedBooks />} />
+          <Route path="/blogs/create" element={<CreateBlog />} />
           <Route path="/books/received" element={<ReceivedBooks />} />
+          <Route path="/admin" element={<AdminDashboard/>} />
+          <Route path="/admin/users" element={<ManageUsers />} />
+          <Route path="/admin/memberships" element={<ManageMemberships />} />
+           <Route path="/admin/testimonials" element={<ManageTestimonials />} />
+           <Route path="/admin/blogs" element={<ManageBlogs />} />
+
+
         </Routes>
       </BrowserRouter>
     </div>

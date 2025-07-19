@@ -1,26 +1,46 @@
 const User = require("../models/User");
 const bcrypt = require("bcryptjs");
 const generateToken = require("../utils/generateToken");
-
+const sendMail = require("../utils/mailer");
+const Otp = require("../models/Otp");
+const crypto = require("crypto");
 // Register
 exports.registerUser = async (req, res) => {
-  const { name, email, password } = req.body;
+  const { name, email, password, phone } = req.body;
 
   const existing = await User.findOne({ email });
   if (existing) return res.status(400).json({ message: "User already exists" });
 
   const hashed = await bcrypt.hash(password, 10);
 
-  const user = await User.create({ name, email, password: hashed });
+  const user = await User.create({ name, email, password: hashed, phone });
 
   res.status(201).json({
     _id: user._id,
     name: user.name,
     email: user.email,
+    phone: user.phone,
     token: generateToken(user._id),
   });
 };
+exports.sendOtp = async (req, res) => {
+  const { email } = req.body;
+  const otp = crypto.randomInt(100000, 999999).toString();
+  await Otp.create({ email, otp });
+  await sendMail(email, otp);
+  res.json({ message: "OTP sent" });
+};
 
+exports.verifyRegister = async (req, res) => {
+  const { name, email, password, phone, otp } = req.body;
+  const record = await Otp.findOneAndDelete({ email, otp });
+  if (!record)
+    return res.status(400).json({ message: "Invalid or expired OTP" });
+  const hashed = await bcrypt.hash(password, 10);
+  const user = new User({ name, email, password: hashed, phone, role: "user" });
+  await user.save();
+  res.json({ message: "Registration successful" });
+};
 // Login
 exports.loginUser = async (req, res) => {
   const { email, password } = req.body;
@@ -30,7 +50,13 @@ exports.loginUser = async (req, res) => {
 
   const match = await bcrypt.compare(password, user.password);
   if (!match) return res.status(400).json({ message: "Invalid password" });
-
+  if (!user.isApproved)
+    return res.status(403).json({ message: "Awaiting admin approval." });
+  if (user.blocked) {
+    return res
+      .status(403)
+      .json({ message: "Your account has been blocked by admin." });
+  }
   // Generate token
   const token = generateToken(user._id);
 

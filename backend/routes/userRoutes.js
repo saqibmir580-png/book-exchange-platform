@@ -7,15 +7,20 @@ const {
   getAllUsers,
   updateUserProfile,
   logoutUser,
+  sendOtp,
+  verifyRegister,
 } = require("../controllers/userController");
-const upload = require("../middlewares/uploadProfileImage");
+
 const { protect } = require("../middlewares/auth");
+const { uploadImage } = require("../utils/upload");
 
 router.post("/register", registerUser);
+router.post('/send-otp', sendOtp);
+router.post('/verify-otp', verifyRegister);
 router.post("/login",loginUser);
 router.post("/logout", logoutUser);
 router.get("/get-profile", protect, getUserProfile);
-router.put("/update-user-profile", upload.single("avatar"), protect, updateUserProfile);
+router.put("/update-user-profile", uploadImage.single("avatar"), protect, updateUserProfile);
 router.get("/all", protect, getAllUsers); 
 // router.get('/:id', protect, getUserById); // Uncomment if you implement get user by ID
 // router.delete('/:id', protect, deleteUser); // Uncomment if you implement delete user

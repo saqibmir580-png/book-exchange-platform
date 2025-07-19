@@ -1,10 +1,17 @@
 const express = require("express");
 const router = express.Router();
 const bookController = require("../controllers/bookController");
-const upload = require("../utils/upload");
-const { protect } = require("../middlewares/auth");
 
-router.post("/add",protect, upload.single("image"), bookController.addBook);
+const { protect } = require("../middlewares/auth");
+const { uploadImage, uploadExcel } = require("../utils/upload");
+
+router.post("/add", protect,uploadImage.single("image"), bookController.addBook);
+router.post(
+  "/bulk-upload",
+  protect,
+  uploadExcel.single("file"),
+  bookController.AddBulkUpload
+);
 router.get("/all", protect, bookController.getBooks);
 router.get("/my", protect, bookController.getMyBooks);
 router.put("/status", protect, bookController.updateBookStatus);
